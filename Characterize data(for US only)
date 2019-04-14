@@ -1,6 +1,26 @@
 /*male = 0, female =1*/
 /*GI = 0, SILENT= 1, bommers =2, X =3, millenials=4, Z=5*/
 /*5-14 =0, 15-24=1, 25-34=2, 35-54=3, 55-74=4, 75+ =5*/
+data US_suicide;
+set suicide;
+if generation = 'G.I. Generation' then gen = 0;
+else if generation = 'Silent' then gen = 1;
+else if generation = 'Boomers' then gen = 2;
+else if generation = 'Generation X' then gen = 3;
+else if generation = 'Millenials' then gen = 4;
+else if generation = 'Generation Z' then gen = 5;
+if sex = 'male' then sex_cat = 0;
+else sex_cat = 1;
+if age = '5-14 years' then do age_cat = 0; new_age = 9.5; end;
+if age = '15-24 years' then do age_cat = 1; new_age = 19.5;end;
+if age = '25-34 years' then do age_cat = 2; new_age = 29.5; end;
+if age = '35-54 years' then do age_cat = 3; new_age = 44.5; end;
+if age = '55-74 years' then do age_cat = 4; new_age = 64.5; end;
+if age = '75+ years' then do age_cat = 5; new_age = 75.5; end;
+ID = _n_;
+age2 = new_age*new_age;
+if (country = 'United States') then output; run;
+
 
 *check US suicide data structure;
 proc univariate data = US_suicide; RUN;
