@@ -1,0 +1,42 @@
+data suid;
+infile "&path.master.csv"
+delimiter=',' missover
+firstobs=2 DSD lrecl = 32767;
+informat country $7.;
+   informat year best12.;
+   informat sex $6.;
+   informat age $11. ;
+   informat suicide_no best12. ;
+   informat population best12.;
+   informat suicide_rate best12.;
+   informat contry_year $7.;
+   informat HDI best12.;
+   informat gdp $15.;
+   informat gdp_capita best12.;
+   informat generation $15.;
+   informat year best32.;
+   informat sex $6.;
+   informat age $11. ;
+   informat suicide_no best32. ;
+   informat population best32.;
+   informat suicide_rate best32.;
+   informat contry_year $7.;
+   informat HDI best32.;
+   informat gdp $15.;
+   informat gdp_capita best32.;
+   informat generation $15.;
+input country $ 
+year 
+sex $ 
+age $ 
+suicide_no 
+population 
+suicide_rate 
+contry_year $
+HDI 
+gdp
+gdp_capita
+generation $
+;
+run;
+
