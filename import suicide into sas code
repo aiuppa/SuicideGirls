@@ -3,7 +3,7 @@ data suicide;
 infile "&path.master.csv"
 delimiter=',' missover
 firstobs=2 DSD lrecl = 32767;
-informat country $7.;
+informat country $20.;
    informat year best12.;
    informat sex $6.;
    informat age $11. ;
@@ -15,7 +15,7 @@ informat country $7.;
    informat gdp $15.;
    informat gdp_capita best12.;
    informat generation $15.;
-   format country $7.;
+   format country $20.;
    format year best32.;
    format sex $6.;
    format age $11. ;
