@@ -1,4 +1,4 @@
-data suid;
+data suicide;
 infile "&path.master.csv"
 delimiter=',' missover
 firstobs=2 DSD lrecl = 32767;
