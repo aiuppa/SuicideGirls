@@ -14,17 +14,18 @@ informat country $7.;
    informat gdp $15.;
    informat gdp_capita best12.;
    informat generation $15.;
-   informat year best32.;
-   informat sex $6.;
-   informat age $11. ;
-   informat suicide_no best32. ;
-   informat population best32.;
-   informat suicide_rate best32.;
-   informat contry_year $7.;
-   informat HDI best32.;
-   informat gdp $15.;
-   informat gdp_capita best32.;
-   informat generation $15.;
+   format country $7.;
+   format year best32.;
+   format sex $6.;
+   format age $11. ;
+   format suicide_no best32. ;
+   format population best32.;
+   format suicide_rate best32.;
+   format contry_year $7.;
+   format HDI best32.;
+   format gdp $15.;
+   format gdp_capita best32.;
+   format generation $15.;
 input country $ 
 year 
 sex $ 
@@ -39,4 +40,3 @@ gdp_capita
 generation $
 ;
 run;
-
