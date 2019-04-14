@@ -2,20 +2,96 @@
 /*GI = 0, SILENT= 1, bommers =2, X =3, millenials=4, Z=5*/
 /*5-14 =0, 15-24=1, 25-34=2, 35-54=3, 55-74=4, 75+ =5*/
 
-data US_suicide;
-set suicide;
-if generation = 'G.I. Generation' then gen = 0;
-else if generation = 'Silent' then gen = 1;
-else if generation = 'Boomers' then gen = 2;
-else if generation = 'Generation X' then gen = 3;
-else if generation = 'Millenials' then gen = 4;
-else if generation = 'Generation Z' then gen = 5;
-if sex = 'male' then sex = 0;
-else sex = 1;
-if age = '5-14 years' then do age_cat = 0; age = 9.5; end;
-if age = '15-24 years' then do age_cat = 1; age = 19.5;end;
-if age = '25-34 years' then do age_cat = 2; age = 29.5; end;
-if age = '35-54 years' then do age_cat = 3; age = 44.5; end;
-if age = '55-74 years' then do age_cat = 4; age = 64.5; end;
-if age = '75+ years' then do age_cat = 5; age = 75.5; end;
-if (country = 'United States') then output; run;
+*check US suicide data structure;
+proc univariate data = US_suicide; RUN;
+
+/******************************************************
+************EXPLORATORY ANALYSIS;
+******************************************************/
+
+proc freq data=US_suicide;
+tables sex*year/norow nopercent CHISQ;
+tables generation*year/norow nopercent CHISQ;
+tables age_cat*year/norow nopercent CHISQ;
+run;
+
+/******************************************************
+************DESCRIPTIVE STATISTICS: ODDS, LOG ODDS (LOGITS);
+******************************************************/
+proc sort data=US_suicide;
+by year;run;
+PROC means DATA=US_suicide mean std min max;
+var sex_cat;
+by year;
+output out = suicide_mean;
+run;
+
+proc sort data=US_suicide;
+by generation sex age_cat;run;
+proc means data=us_suicide mean std min max;
+var suicide_no suicide_rate;
+by generation;
+run;
+
+proc sort data=US_suicide;
+by sex age_cat;run;
+proc means data=us_suicide mean std min max;
+var suicide_no suicide_rate;
+by sex;
+run;
+
+proc sort data=US_suicide;
+by age_cat;run;
+proc means data=us_suicide mean std min max;
+var suicide_no suicide_rate;
+by age_cat;
+output out = suicide_mean;
+run;
+
+/*******************************************
+***PLOT Observed Proportions versus WEEK FOR TWO GROUPS;
+*******************************************/
+GOPTIONS RESET=ALL;
+PROC GPLOT DATA=Us_suicide;
+PLOT sex_cat*year=age_cat;
+SYMBOL1 V=CIRCLE I=JOIN COLOR=BLACK LINE=2;
+SYMBOL2 V=DIAMOND I=JOIN COLOR=RED LINE=1;
+TITLE 'OBSERVED GROUP Proportions OVER TIME';
+RUN; 
+QUIT;
+
+/******************************************************
+****marginal logistic regression, with within-subject associations specified in terms of log suicide_rate;
+******************************************************/
+PROC GENMOD DESCENDING DATA = us_suicide;
+CLASS year sex_cat gen ID;
+MODEL suicide_rate=year gen sex_cat new_age / DIST=normal LINK=log TYPE3 WALD;
+REPEATED SUBJECT= ID/ WITHINSUBJECT=year type=AR(1) corrw ecovb modelse;
+*CONTRAST 'AGE X GENDER INTERACTION' sex_cat*age_cat 1, GENDER*CAGE2 1 /WALD;
+RUN;
+
+
+/************************************/
+/* LOGIT RANDOM-INTERCEPT MODEL FOR ORDINAL RESPONSES */
+/************************************/
+/*********** GLIMMIX ****************/
+/************************************/
+*FITTING ORDINAL RANDOM INTERCEPT MODEL with Cumulative Logit;
+PROC GLIMMIX DATA=us_suicide METHOD =LAPLACE;
+* DEFAULT IS RSPL, OTHER METHOD: MSPL, RMPL, MMPL, LAPLACE, QUAD;
+CLASS ID;
+MODEL gen (DESCENDING)= year sex_cat age_cat year*sex_cat year*suicide_rate year*new_age year*age2/S DIST = MULT LINK=cumlogit;
+RANDOM  year/ SUB=ID TYPE=SIMPLE ;
+*CONTRAST 'TREATMENT BY TIME INTERACTION' TX*SWEEK 1 /CHISQ;
+*ODS OUTPUT SOLUTIONR=RANDOMEFFECTS;
+RUN;
+
+PROC GLIMMIX DATA=us_suicide METHOD =LAPLACE;
+* DEFAULT IS RSPL, OTHER METHOD: MSPL, RMPL, MMPL, LAPLACE, QUAD;
+CLASS ID;
+MODEL gen (DESCENDING)= year sex_cat suicide_rate suicide_rate*year/S DIST = MULT LINK=cumprobit;
+RANDOM INTERCEPT year/ SUB=ID TYPE=SIMPLE ;
+*CONTRAST 'TREATMENT BY TIME INTERACTION' TX*SWEEK 1 /CHISQ;
+*ODS OUTPUT SOLUTIONR=RANDOMEFFECTS;
+RUN;
+
